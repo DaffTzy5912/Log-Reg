@@ -154,7 +154,7 @@
                     {{ showPassword ? '🙈' : '👁️' }}
                 </span>
             </div>
-            <button disabled>Login</button> <!-- Tombol login dinonaktifkan -->
+            <button @click="fakeLogin">Login</button> <!-- Fake login -->
             <p class="switch">Belum punya akun? <a href="#" @click.prevent="toggleForm">Register</a></p>
         </div>
 
@@ -177,9 +177,12 @@
         createApp({
             setup() {
                 const isLoginVisible = ref(true);
+                const loginUsername = ref('');
+                const loginPassword = ref('');
                 const registerUsername = ref('');
                 const registerEmail = ref('');
                 const registerPassword = ref('');
+                const showPassword = ref(false);
                 const isLoading = ref(false);
 
                 // State untuk notifikasi
@@ -238,17 +241,43 @@
                     toggleForm();
                 };
 
+                const fakeLogin = () => {
+                    if (!loginUsername.value || !loginPassword.value) {
+                        showNotification('Semua field harus diisi!', 'error');
+                        return;
+                    }
+
+                    const user = localStorage.getItem(loginUsername.value);
+
+                    if (!user) {
+                        showNotification('Akun tidak ditemukan!', 'error');
+                        return;
+                    }
+
+                    const parsedUser = JSON.parse(user);
+                    if (parsedUser.password !== loginPassword.value) {
+                        showNotification('Password salah!', 'error');
+                        return;
+                    }
+
+                    showNotification('Login berhasil! Tetapi tidak ada halaman lanjutan.', 'success');
+                };
+
                 return {
                     isLoginVisible,
+                    loginUsername,
+                    loginPassword,
                     registerUsername,
                     registerEmail,
                     registerPassword,
                     toggleForm,
                     register,
+                    fakeLogin,
                     notificationMessage,
                     notificationType,
                     isNotificationVisible,
                     closeNotification,
+                    showPassword,
                     isLoading,
                 };
             },
