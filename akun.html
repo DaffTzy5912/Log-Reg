@@ -114,8 +114,12 @@
         const key = localStorage.key(i);
         // Hanya ambil data pengguna (abaikan data admin dan status login admin)
         if (key !== 'admin' && key !== 'isAdminLoggedIn') {
-            const user = JSON.parse(localStorage.getItem(key));
-            users.push(user);
+            try {
+                const user = JSON.parse(localStorage.getItem(key));
+                users.push(user);
+            } catch (error) {
+                console.error(`Error parsing user data for key "${key}":`, error);
+            }
         }
     }
 
