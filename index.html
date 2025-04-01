@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Register</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('https://files.catbox.moe/kxjbdt.jpg') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        /* Menambahkan efek blur pada background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            filter: blur(5px); /* Efek blur */
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            width: 350px;
+            background: rgba(0, 0, 0, 0.7); /* Transparansi hitam */
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            color: #ffffff; /* Warna teks putih agar terlihat di latar belakang hitam */
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            background: rgba(255, 255, 255, 0.8); /* Background input sedikit lebih terang */
+            color: #333; /* Warna teks input */
+        }
+
+        input:focus {
+            border-color: #4CAF50; /* Hijau muda */
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50; /* Hijau muda */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #45a049; /* Hijau sedikit lebih gelap */
+        }
+
+        .switch {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ffffff; /* Warna teks putih agar terlihat di latar belakang hitam */
+        }
+
+        .switch a {
+            color: #4CAF50; /* Hijau muda */
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .switch a:hover {
+            color: #45a049; /* Hijau sedikit lebih gelap */
+        }
+
+        /* Styling untuk notifikasi */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .notification.success {
+            background: #4CAF50; /* Hijau */
+        }
+
+        .notification.error {
+            background: #f44336; /* Merah */
+        }
+
+        .notification.info {
+            background: #2196F3; /* Biru */
+        }
+
+        /* Animasi Transisi */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+                padding: 1.5rem;
+            }
+
+            input, button {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Notifikasi -->
+        <div 
+            v-if="notificationMessage" 
+            class="notification" 
+            :class="[notificationType, { show: isNotificationVisible }]" 
+            @click="closeNotification"
+        >
+            {{ notificationMessage }}
+        </div>
+
+        <div class="container" :class="{ 'fade-enter-active': isLoginVisible }" v-if="isLoginVisible">
+            <h2>Login</h2>
+            <input type="text" v-model="loginUsername" placeholder="Username" required>
+            <div style="position: relative;">
+                <input 
+                    :type="showPassword ? 'text' : 'password'" 
+                    v-model="loginPassword" 
+                    placeholder="Password" 
+                    required
+                />
+                <span 
+                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;" 
+                    @click="showPassword = !showPassword"
+                >
+                    {{ showPassword ? '🙈' : '👁️' }}
+                </span>
+            </div>
+            <button :disabled="isLoading" @click="login">
+                {{ isLoading ? 'Loading...' : 'Login' }}
+            </button>
+            <p class="switch">Belum punya akun? <a href="#" @click.prevent="toggleForm">Register</a></p>
+            <p class="switch">
+                Lupa password? <a href="#" @click.prevent="resetPassword">Reset di sini</a>
+            </p>
+        </div>
+
+        <div class="container" :class="{ 'fade-enter-active': !isLoginVisible }" v-else>
+            <h2>Register</h2>
+            <input type="text" v-model="registerUsername" placeholder="Username" required>
+            <input type="email" v-model="registerEmail" placeholder="Email" required>
+            <input type="password" v-model="registerPassword" placeholder="Password" required>
+            <button :disabled="isLoading" @click="register">
+                {{ isLoading ? 'Loading...' : 'Register' }}
+            </button>
+            <p class="switch">Sudah punya akun? <a href="#" @click.prevent="toggleForm">Login</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+    <script>
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                const isLoginVisible = ref(true);
+                const loginUsername = ref('');
+                const loginPassword = ref('');
+                const registerUsername = ref('');
+                const registerEmail = ref('');
+                const registerPassword = ref('');
+                const showPassword = ref(false);
+                const isLoading = ref(false);
+
+                // State untuk notifikasi
+                const notificationMessage = ref('');
+                const notificationType = ref('');
+                const isNotificationVisible = ref(false);
+
+                const toggleForm = () => {
+                    isLoginVisible.value = !isLoginVisible.value;
+                };
+
+                const closeNotification = () => {
+                    isNotificationVisible.value = false;
+                    setTimeout(() => {
+                        notificationMessage.value = '';
+                        notificationType.value = '';
+                    }, 300); // Delay untuk memastikan animasi selesai
+                };
+
+                const showNotification = (message, type) => {
+                    notificationMessage.value = message;
+                    notificationType.value = type;
+                    isNotificationVisible.value = true;
+                    setTimeout(() => closeNotification(), 3000); // Hilangkan notifikasi setelah 3 detik
+                };
+
+                const isValidEmail = (email) => {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return emailRegex.test(email);
+                };
+
+                const register = () => {
+                    if (!registerUsername.value || !registerEmail.value || !registerPassword.value) {
+                        showNotification('Semua field harus diisi!', 'error');
+                        return;
+                    }
+
+                    if (!isValidEmail(registerEmail.value)) {
+                        showNotification('Email tidak valid!', 'error');
+                        return;
+                    }
+
+                    if (registerPassword.value.length < 6) {
+                        showNotification('Password minimal 6 karakter!', 'error');
+                        return;
+                    }
+
+                    if (localStorage.getItem(registerUsername.value)) {
+                        showNotification('Username sudah terdaftar!', 'error');
+                        return;
+                    }
+
+                    const user = { username: registerUsername.value, email: registerEmail.value, password: registerPassword.value };
+                    localStorage.setItem(registerUsername.value, JSON.stringify(user));
+                    showNotification('Registrasi berhasil! Silakan login.', 'success');
+                    toggleForm();
+                };
+
+                const login = () => {
+                    if (!loginUsername.value || !loginPassword.value) {
+                        showNotification('Semua field harus diisi!', 'error');
+                        return;
+                    }
+
+                    const user = localStorage.getItem(loginUsername.value);
+
+                    if (!user) {
+                        showNotification('Akun tidak ditemukan!', 'error');
+                        return;
+                    }
+
+                    const parsedUser = JSON.parse(user);
+                    if (parsedUser.password !== loginPassword.value) {
+                        showNotification('Password salah!', 'error');
+                        return;
+                    }
+
+                    // Redirect ke halaman akun.html
+                    localStorage.setItem('loggedInUser', loginUsername.value);
+                    window.location.href = 'akun.html';
+                };
+
+                const resetPassword = () => {
+                    showNotification('Silakan hubungi admin untuk reset password.', 'info');
+                };
+
+                return {
+                    isLoginVisible,
+                    loginUsername,
+                    loginPassword,
+                    registerUsername,
+                    registerEmail,
+                    registerPassword,
+                    toggleForm,
+                    register,
+                    login,
+                    notificationMessage,
+                    notificationType,
+                    isNotificationVisible,
+                    closeNotification,
+                    showPassword,
+                    isLoading,
+                    resetPassword,
+                };
+            },
+        }).mount('#app');
+    </script>
+</body>
+</html>
