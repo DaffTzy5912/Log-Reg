@@ -215,31 +215,32 @@
                 };
 
                 const register = () => {
-                    if (!registerUsername.value || !registerEmail.value || !registerPassword.value) {
-                        showNotification('Semua field harus diisi!', 'error');
-                        return;
-                    }
+    if (!registerUsername.value || !registerEmail.value || !registerPassword.value) {
+        showNotification('Semua field harus diisi!', 'error');
+        return;
+    }
 
-                    if (!isValidEmail(registerEmail.value)) {
-                        showNotification('Email tidak valid!', 'error');
-                        return;
-                    }
+    if (!isValidEmail(registerEmail.value)) {
+        showNotification('Email tidak valid!', 'error');
+        return;
+    }
 
-                    if (registerPassword.value.length < 6) {
-                        showNotification('Password minimal 6 karakter!', 'error');
-                        return;
-                    }
+    if (registerPassword.value.length < 6) {
+        showNotification('Password minimal 6 karakter!', 'error');
+        return;
+    }
 
-                    if (localStorage.getItem(registerUsername.value)) {
-                        showNotification('Username sudah terdaftar!', 'error');
-                        return;
-                    }
+    if (localStorage.getItem(registerUsername.value)) {
+        showNotification('Username sudah terdaftar!', 'error');
+        return;
+    }
 
-                    const user = { username: registerUsername.value, email: registerEmail.value, password: registerPassword.value };
-                    localStorage.setItem(registerUsername.value, JSON.stringify(user));
-                    showNotification('Registrasi berhasil!', 'success');
-                    toggleForm();
-                };
+    // Simpan data pengguna di localStorage
+    const user = { username: registerUsername.value, email: registerEmail.value, password: registerPassword.value };
+    localStorage.setItem(registerUsername.value, JSON.stringify(user));
+    showNotification('Registrasi berhasil!', 'success');
+    toggleForm();
+};
 
                 const fakeLogin = () => {
                     if (!loginUsername.value || !loginPassword.value) {
