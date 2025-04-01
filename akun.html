@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akun Saya</title>
+    <title>Data Akun</title>
     <style>
         * {
             box-sizing: border-box;
@@ -36,8 +36,9 @@
 
         .container {
             position: relative;
-            width: 350px;
-            background: rgba(0, 0, 0, 0.7); /* Transparansi hitam */
+            width: 80%;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.7);
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -49,9 +50,21 @@
             margin-bottom: 1rem;
         }
 
-        p {
-            margin: 10px 0;
-            font-size: 16px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+            color: white;
+        }
+
+        table th {
+            background: #4CAF50;
         }
 
         button {
@@ -73,31 +86,53 @@
 </head>
 <body>
     <div class="container">
-        <h2>Akun Saya</h2>
-        <p><strong>Username:</strong> <span id="username"></span></p>
-        <p><strong>Email:</strong> <span id="email"></span></p>
-        <button onclick="logout()">Logout</button>
+        <h2>Data Akun Pengguna</h2>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data pengguna akan ditampilkan di sini -->
+            </tbody>
+        </table>
+        <button onclick="logoutAdmin()">Logout</button>
     </div>
 
     <script>
-        // Ambil data pengguna dari localStorage
-        const loggedInUser = localStorage.getItem('loggedInUser');
-
-        if (!loggedInUser) {
-            alert('Anda belum login!');
-            window.location.href = 'index.html';
+        // Periksa apakah admin sudah login
+        if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+            alert('Anda tidak memiliki akses ke halaman ini!');
+            window.location.href = 'admin-login.html';
         }
 
-        const user = JSON.parse(localStorage.getItem(loggedInUser));
+        // Ambil semua data pengguna dari localStorage
+        const users = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key !== 'admin' && key !== 'isAdminLoggedIn') {
+                const user = JSON.parse(localStorage.getItem(key));
+                users.push(user);
+            }
+        }
 
-        // Tampilkan data pengguna
-        document.getElementById('username').textContent = user.username;
-        document.getElementById('email').textContent = user.email;
+        // Tampilkan data pengguna dalam tabel
+        const tableBody = document.querySelector('#userTable tbody');
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.username}</td>
+                <td>${user.email}</td>
+            `;
+            tableBody.appendChild(row);
+        });
 
-        // Fungsi logout
-        function logout() {
-            localStorage.removeItem('loggedInUser');
-            window.location.href = 'index.html';
+        // Fungsi logout admin
+        function logoutAdmin() {
+            localStorage.removeItem('isAdminLoggedIn');
+            window.location.href = 'admin-login.html';
         }
     </script>
 </body>
