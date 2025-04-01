@@ -102,24 +102,29 @@
     </div>
 
     <script>
-        // Periksa apakah admin sudah login
-        if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
-            alert('Anda tidak memiliki akses ke halaman ini!');
-            window.location.href = 'admin-login.html';
-        }
+    // Periksa apakah admin sudah login
+    if (localStorage.getItem('isAdminLoggedIn') !== 'true') {
+        alert('Anda tidak memiliki akses ke halaman ini!');
+        window.location.href = 'admin-login.html';
+    }
 
-        // Ambil semua data pengguna dari localStorage
-        const users = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key !== 'admin' && key !== 'isAdminLoggedIn') {
-                const user = JSON.parse(localStorage.getItem(key));
-                users.push(user);
-            }
+    // Ambil semua data pengguna dari localStorage
+    const users = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        // Hanya ambil data pengguna (abaikan data admin dan status login admin)
+        if (key !== 'admin' && key !== 'isAdminLoggedIn') {
+            const user = JSON.parse(localStorage.getItem(key));
+            users.push(user);
         }
+    }
 
-        // Tampilkan data pengguna dalam tabel
-        const tableBody = document.querySelector('#userTable tbody');
+    // Debugging: Cek apakah data pengguna berhasil diambil
+    console.log(users);
+
+    // Tampilkan data pengguna dalam tabel
+    const tableBody = document.querySelector('#userTable tbody');
+    if (users.length > 0) {
         users.forEach(user => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -128,12 +133,20 @@
             `;
             tableBody.appendChild(row);
         });
+    } else {
+        // Jika tidak ada data pengguna, tampilkan pesan "Tidak ada data"
+        const noDataRow = document.createElement('tr');
+        noDataRow.innerHTML = `
+            <td colspan="2" style="text-align: center;">Tidak ada data pengguna.</td>
+        `;
+        tableBody.appendChild(noDataRow);
+    }
 
-        // Fungsi logout admin
-        function logoutAdmin() {
-            localStorage.removeItem('isAdminLoggedIn');
-            window.location.href = 'admin-login.html';
-        }
-    </script>
+    // Fungsi logout admin
+    function logoutAdmin() {
+        localStorage.removeItem('isAdminLoggedIn');
+        window.location.href = 'admin-login.html';
+    }
+</script>
 </body>
 </html>
