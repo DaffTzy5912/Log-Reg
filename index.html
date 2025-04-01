@@ -22,7 +22,6 @@
             overflow: hidden;
         }
 
-        /* Menambahkan efek blur pada background */
         body::before {
             content: '';
             position: absolute;
@@ -38,17 +37,16 @@
         .container {
             position: relative;
             width: 350px;
-            background: rgba(0, 0, 0, 0.7); /* Transparansi hitam */
+            background: rgba(0, 0, 0, 0.7);
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             text-align: center;
-            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            color: white;
         }
 
         h2 {
             margin-bottom: 1rem;
-            color: #ffffff; /* Warna teks putih agar terlihat di latar belakang hitam */
         }
 
         input {
@@ -59,18 +57,14 @@
             border-radius: 8px;
             outline: none;
             transition: border-color 0.3s ease;
-            background: rgba(255, 255, 255, 0.8); /* Background input sedikit lebih terang */
-            color: #333; /* Warna teks input */
-        }
-
-        input:focus {
-            border-color: #4CAF50; /* Hijau muda */
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
         }
 
         button {
             width: 100%;
             padding: 12px;
-            background: #4CAF50; /* Hijau muda */
+            background: #4CAF50;
             color: white;
             border: none;
             border-radius: 8px;
@@ -80,24 +74,24 @@
         }
 
         button:hover {
-            background: #45a049; /* Hijau sedikit lebih gelap */
+            background: #45a049;
         }
 
         .switch {
             margin-top: 15px;
             font-size: 14px;
-            color: #ffffff; /* Warna teks putih agar terlihat di latar belakang hitam */
+            color: white;
         }
 
         .switch a {
-            color: #4CAF50; /* Hijau muda */
+            color: #4CAF50;
             text-decoration: none;
             font-weight: bold;
             transition: color 0.3s ease;
         }
 
         .switch a:hover {
-            color: #45a049; /* Hijau sedikit lebih gelap */
+            color: #45a049;
         }
 
         /* Styling untuk notifikasi */
@@ -128,35 +122,6 @@
 
         .notification.error {
             background: #f44336; /* Merah */
-        }
-
-        .notification.info {
-            background: #2196F3; /* Biru */
-        }
-
-        /* Animasi Transisi */
-        .fade-enter-active,
-        .fade-leave-active {
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        .fade-enter-from,
-        .fade-leave-to {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 600px) {
-            .container {
-                width: 90%;
-                padding: 1.5rem;
-            }
-
-            input, button {
-                font-size: 14px;
-                padding: 10px;
-            }
         }
     </style>
 </head>
@@ -189,13 +154,8 @@
                     {{ showPassword ? '🙈' : '👁️' }}
                 </span>
             </div>
-            <button :disabled="isLoading" @click="login">
-                {{ isLoading ? 'Loading...' : 'Login' }}
-            </button>
+            <button disabled>Login</button> <!-- Tombol login dinonaktifkan -->
             <p class="switch">Belum punya akun? <a href="#" @click.prevent="toggleForm">Register</a></p>
-            <p class="switch">
-                Lupa password? <a href="#" @click.prevent="resetPassword">Reset di sini</a>
-            </p>
         </div>
 
         <div class="container" :class="{ 'fade-enter-active': !isLoginVisible }" v-else>
@@ -217,12 +177,9 @@
         createApp({
             setup() {
                 const isLoginVisible = ref(true);
-                const loginUsername = ref('');
-                const loginPassword = ref('');
                 const registerUsername = ref('');
                 const registerEmail = ref('');
                 const registerPassword = ref('');
-                const showPassword = ref(false);
                 const isLoading = ref(false);
 
                 // State untuk notifikasi
@@ -277,55 +234,22 @@
 
                     const user = { username: registerUsername.value, email: registerEmail.value, password: registerPassword.value };
                     localStorage.setItem(registerUsername.value, JSON.stringify(user));
-                    showNotification('Registrasi berhasil! Silakan login.', 'success');
+                    showNotification('Registrasi berhasil!', 'success');
                     toggleForm();
-                };
-
-                const login = () => {
-                    if (!loginUsername.value || !loginPassword.value) {
-                        showNotification('Semua field harus diisi!', 'error');
-                        return;
-                    }
-
-                    const user = localStorage.getItem(loginUsername.value);
-
-                    if (!user) {
-                        showNotification('Akun tidak ditemukan!', 'error');
-                        return;
-                    }
-
-                    const parsedUser = JSON.parse(user);
-                    if (parsedUser.password !== loginPassword.value) {
-                        showNotification('Password salah!', 'error');
-                        return;
-                    }
-
-                    // Redirect ke halaman akun.html
-                    localStorage.setItem('loggedInUser', loginUsername.value);
-                    window.location.href = 'akun.html';
-                };
-
-                const resetPassword = () => {
-                    showNotification('Silakan hubungi admin untuk reset password.', 'info');
                 };
 
                 return {
                     isLoginVisible,
-                    loginUsername,
-                    loginPassword,
                     registerUsername,
                     registerEmail,
                     registerPassword,
                     toggleForm,
                     register,
-                    login,
                     notificationMessage,
                     notificationType,
                     isNotificationVisible,
                     closeNotification,
-                    showPassword,
                     isLoading,
-                    resetPassword,
                 };
             },
         }).mount('#app');
